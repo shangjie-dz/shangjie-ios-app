@@ -1,0 +1,40 @@
+name: build-ios
+
+# 手动触发 + main 分支每次推送自动触发
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-14   # GitHub 免费提供的云端苹果电脑
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 生成 iOS 工程 + 挂原生桥 + 权限 + 图标
+        run: bash scripts/prepare_ios.sh
+
+      - name: 编译（免签名）
+        run: flutter build ios --release --no-codesign
+
+      - name: 打包未签名 ipa
+        run: |
+          mkdir Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -qry psc_app_unsigned.ipa Payload
+          ls -lh psc_app_unsigned.ipa
+
+      - name: 上传成品（在 Actions 页面下载）
+        uses: actions/upload-artifact@v4
+        with:
+          name: psc_app_unsigned_ipa
+          path: psc_app_unsigned.ipa
+          retention-days: 30

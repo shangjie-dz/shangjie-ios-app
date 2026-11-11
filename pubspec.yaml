@@ -1,0 +1,42 @@
+name: psc_app
+description: 小捷AI智能体·产销存（iPhone 版）
+publish_to: 'none'
+version: 1.6.0+6
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # WebView 外壳：加载同一个网页，业务功能 100% 复用
+  webview_flutter: ^4.7.0
+  # 扫码（相机 + 条码/二维码解析）
+  mobile_scanner: ^5.0.0
+  # 拍照 OCR：拍照后交给 iOS 原生 Vision 识别
+  image_picker: ^1.0.7
+  # 讯飞语音听写 / 播报：WebSocket 客户端
+  web_socket_channel: ^2.4.0
+  # 站外链接跳转（点网页里的链接跳系统浏览器）
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  # 自动生成安卓/iOS 多尺寸图标
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/
+
+# 图标生成配置：flutter pub run flutter_launcher_icons 一键生成
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#2F7BF6"
+  adaptive_icon_foreground: "assets/icon/icon.png"

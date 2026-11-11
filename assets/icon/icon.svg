@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2F7BF6"/>
+      <stop offset="1" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="dog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E8EDF7"/>
+    </linearGradient>
+  </defs>
+  <!-- 圆角背景 -->
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="url(#bg)"/>
+  <!-- 小狗脸 -->
+  <ellipse cx="512" cy="560" rx="230" ry="200" fill="url(#dog)"/>
+  <!-- 左耳 -->
+  <path d="M330 440 Q300 250 400 300 Q430 380 400 460 Z" fill="#FFFFFF" stroke="#E0E6F2" stroke-width="6"/>
+  <!-- 右耳 -->
+  <path d="M694 440 Q724 250 624 300 Q594 380 624 460 Z" fill="#FFFFFF" stroke="#E0E6F2" stroke-width="6"/>
+  <!-- 左耳内 -->
+  <path d="M352 410 Q338 300 400 330 Q415 385 395 430 Z" fill="#F6C7C0"/>
+  <!-- 右耳内 -->
+  <path d="M672 410 Q686 300 624 330 Q609 385 629 430 Z" fill="#F6C7C0"/>
+  <!-- 眼睛 -->
+  <circle cx="428" cy="540" r="30" fill="#2A2D3A"/>
+  <circle cx="596" cy="540" r="30" fill="#2A2D3A"/>
+  <circle cx="438" cy="530" r="10" fill="#FFFFFF"/>
+  <circle cx="606" cy="530" r="10" fill="#FFFFFF"/>
+  <!-- 鼻子 -->
+  <ellipse cx="512" cy="610" rx="26" ry="20" fill="#2A2D3A"/>
+  <!-- 嘴 -->
+  <path d="M512 630 Q512 660 486 668 M512 630 Q512 660 538 668" stroke="#2A2D3A" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <!-- 腮红 -->
+  <circle cx="388" cy="620" r="24" fill="#F6C7C0" opacity="0.7"/>
+  <circle cx="636" cy="620" r="24" fill="#F6C7C0" opacity="0.7"/>
+  <!-- 刘海 -->
+  <path d="M430 380 Q470 350 512 380 Q554 350 594 380" stroke="#D8DEEA" stroke-width="8" fill="none" stroke-linecap="round"/>
+</svg>
