@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -77,7 +76,7 @@ class NativeVoice {
       final stopwatch = Stopwatch()..start();
       bool first = true;
       const maxMs = 8000;
-      const frameLen = 1280; // 40ms @16k 16bit mono
+      // 每帧 1280 字节 = 40ms @16k 16bit mono
 
       try {
         while (stopwatch.elapsedMilliseconds < maxMs && !completer.isCompleted) {
