@@ -20,3 +20,7 @@ dart run flutter_launcher_icons || true
 
 flutter pub get
 echo "== iOS 工程准备完成 =="
+
+# 自检：确认原生桥已内联进 AppDelegate（避免 Cannot find 'NativeBridge' in scope）
+grep -q "class NativeBridge" ios/Runner/AppDelegate.swift && echo "  ✓ NativeBridge 已内联" || (echo "  ✗ NativeBridge 缺失"; exit 1)
+ls ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png >/dev/null && echo "  ✓ 图标已生成"
