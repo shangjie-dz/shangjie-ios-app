@@ -1,14 +1,14 @@
 name: build-ios
 
-# 手动触发 + main 分支每次推送自动触发
+# 手动触发（push 触发会被新账号风控取消，故只用手动）
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build:
-    runs-on: macos-14   # GitHub 免费提供的云端苹果电脑
+    # Intel 机型标签；arm64 的 macos-14/macos-15 在当前账号下报
+    # "configuration 'macos-14-arm64-us-default' is not supported"
+    runs-on: macos-15-intel
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4

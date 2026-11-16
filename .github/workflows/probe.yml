@@ -1,5 +1,8 @@
 name: probe
-on: workflow_dispatch
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 jobs:
   p1:
     runs-on: macos-15-intel
@@ -14,6 +17,6 @@ jobs:
     steps:
       - run: sw_vers; uname -m
   p4:
-    runs-on: macos-13
+    runs-on: macos-26-intel
     steps:
       - run: sw_vers; uname -m
