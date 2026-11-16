@@ -1,0 +1,19 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  p1:
+    runs-on: macos-15-intel
+    steps:
+      - run: sw_vers; uname -m
+  p2:
+    runs-on: macos-14
+    steps:
+      - run: sw_vers; uname -m
+  p3:
+    runs-on: macos-latest
+    steps:
+      - run: sw_vers; uname -m
+  p4:
+    runs-on: macos-13
+    steps:
+      - run: sw_vers; uname -m
