@@ -9,6 +9,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'native_scan.dart';
 import 'native_ocr.dart';
 import 'native_voice.dart';
+import 'native_printer.dart';
 import 'app_navigator.dart';
 
 /// 线上网页地址（与现有安卓版、网页版完全同一个，保证功能 100% 一致）
@@ -127,10 +128,23 @@ class _WebShellState extends State<WebShell> {
   /// 注入 PSCApp 桥对象：把原生能力暴露给网页，接口与现有安卓版完全一致
   Future<void> _injectBridge() async {
     if (_controller == null) return;
+
+    // 蓝牙打印只在安卓暴露（iPhone 不支持佳博经典蓝牙 SPP）。
+    // 网页侧 pairedPrinters() 是「同步返回」，JSChannel 无法同步回值——
+    // 解法：把已配对列表放进一个 JS 全局变量，网页同步读它；列表由 _refreshPaired()
+    // 异步刷新。**刷新绝不能阻塞桥注入**，否则网页会短暂误判「不是 App」而降级成网页打印。
+    // printLabel(json) 走异步消息 + __pscNativeCb 回执（与 btPrint 里的回调完全对齐）。
+    final printMethods = Platform.isAndroid
+        ? ''',
+    pairedPrinters: function(){ return window.__pscPaired || "[]"; },
+    printLabel: function(json){ _post({m:'printLabel', json:json}); }'''
+        : '';
+
     final js = '''
 (function(){
   if (window.PSCApp) return; // 已注入，避免重复
   window.__pscNativeCb = null;
+  window.__pscPaired = window.__pscPaired || "[]";
   // iOS WKWebView 消息通道（webview_flutter addJavaScriptChannel 注入）
   var _post = function(obj){
     var s = JSON.stringify(obj);
@@ -148,14 +162,26 @@ class _WebShellState extends State<WebShell> {
     startOcr: function(){ _post({m:'startOcr'}); },
     voiceSigned: function(authUrl, appId){ _post({m:'voice', authUrl:authUrl, appId:appId}); },
     speak: function(text){ _post({m:'speak', text:text}); },
-    speakSigned: function(text, authUrl, appId){ _post({m:'speak', text:text, authUrl:authUrl, appId:appId}); }
+    speakSigned: function(text, authUrl, appId){ _post({m:'speak', text:text, authUrl:authUrl, appId:appId}); }''' + printMethods + '''
   };
-  // 蓝牙打印只在安卓暴露（iPhone 不支持佳博经典蓝牙 SPP）
-  // 注意：网页侧 pairedPrinters() 是同步调用，webview_flutter 的 JSChannel 无法同步返回，
-  // 因此安卓 Flutter 版暂不暴露打印接口；安卓打印沿用现有原生 Java 套壳 App。
 })();
 ''';
     await _controller!.runJavaScript(js);
+    _refreshPaired(); // 异步刷新已配对打印机，不阻塞上面的桥注入
+  }
+
+  /// 异步刷新已配对蓝牙打印机列表，写进 JS 全局变量供 pairedPrinters() 同步读取。
+  /// 每次页面加载完成都会刷一次，用户在系统蓝牙里新配对打印机后重进页面即可生效。
+  Future<void> _refreshPaired() async {
+    if (!Platform.isAndroid || _controller == null) return;
+    try {
+      final devs = await NativePrinter.paired();
+      // devs 是 List<Map>；先编码成 JSON 文本，再编码一次成为合法的 JS 字符串字面量
+      final literal = jsonEncode(jsonEncode(devs));
+      await _controller!.runJavaScript('window.__pscPaired = $literal;');
+    } catch (_) {
+      // 蓝牙不可用/权限未给时保持 '[]'，打印设置页会提示先配对，不影响其他功能
+    }
   }
 
   /// 原生侧把结果回传给网页（网页 callNative 期待 window.__pscNativeCb 被调用）
@@ -197,6 +223,22 @@ class _WebShellState extends State<WebShell> {
           authUrl: msg['authUrl'] as String?,
           appId: msg['appId'] as String?,
         );
+        break;
+      case 'printLabel':
+        // 网页侧 btPrint / btPrintTspl 会先设 window.__pscNativeCb 接打印结果
+        final raw = msg['json'] as String?;
+        if (raw != null) {
+          try {
+            final obj = jsonDecode(raw) as Map<String, dynamic>;
+            final res = await NativePrinter.print(
+              mac: (obj['mac'] ?? '').toString(),
+              tspl: (obj['tspl'] ?? '').toString(),
+            );
+            await _replyToWeb(res);
+          } catch (e) {
+            await _replyToWeb({'ok': false, 'message': '打印出错：$e'});
+          }
+        }
         break;
     }
   }

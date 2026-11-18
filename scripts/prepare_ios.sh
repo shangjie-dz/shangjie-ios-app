@@ -6,6 +6,11 @@ cd "$(dirname "$0")/.."
 echo "== 1/4 生成 iOS 原生工程 =="
 flutter create . --platforms ios --org com.shangjie --project-name psc_app
 
+echo "== 1.5/4 自检：确认最新 main.dart 未被 flutter create 覆盖 =="
+grep -q "__pscPaired" lib/main.dart || (echo "  ✗ main.dart 被覆盖/未同步"; exit 1)
+grep -q "import 'native_printer.dart'" lib/main.dart || (echo "  ✗ 打印桥 import 缺失"; exit 1)
+echo "  ✓ main.dart 打印桥同步完好"
+
 echo "== 2/4 挂载原生桥（语音 + OCR）=="
 cp ios-overrides/AppDelegate.swift ios/Runner/AppDelegate.swift
 
