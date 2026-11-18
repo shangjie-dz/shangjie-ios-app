@@ -8,7 +8,7 @@ jobs:
   build:
     # Intel 机型标签；arm64 的 macos-14/macos-15 在当前账号下报
     # "configuration 'macos-14-arm64-us-default' is not supported"
-    runs-on: macos-15-intel
+    runs-on: macos-26-intel
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
